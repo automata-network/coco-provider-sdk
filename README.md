@@ -1,5 +1,5 @@
-## Table of Contents
-- [Getting Started](#getting-started)
+# Automata coco-provider SDK
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
 ## Getting Started
 
@@ -8,8 +8,9 @@ By default, this crate enables all its features - `configfs`, `tpm` and `legacy`
 ### Features
 - `tpm`: This feature must be used for a VM that only exports its attestation report via a TPM module. VMs that support this include Azure Confidential VMs.
 - `configfs`: This feature should be the default for most Cloud Service Providers (CSP), such as AWS and GCP.
-- `legacy`: This feature should only be enabled on CSPs that support this, and only on AMD SEV-SNP VMs. Do not use this where possible, as confidential computing development is moving to ConfigFS.
+- `legacy`: This feature should only be enabled on CSPs that support this, and only on AMD SEV-SNP VMs.
 
+> [!NOTE]
 > We recommend leaving all features on unless you know which feature to exclude.
 
 ### Download Dependencies
@@ -24,14 +25,18 @@ To use the crate as is, import it into your `Cargo.toml` as follows:
 
 ```toml
 [dependencies]
-coco-provider = "0.2.0"
+coco-provider = { git = "https://github.com/automata-network/coco-provider-sdk" }
 ```
 
 To use this crate without specific features, eg. `tpm` feature, import it into your `Cargo.toml` as follows:
 
 ```toml
 [dependencies]
-coco-provider = { version = "0.2.0", default-features = false, features = ["configfs", "legacy"] }
+coco-provider = { 
+    git = "https://github.com/automata-network/coco-provider-sdk",
+    default-features = false,
+    features = ["configfs", "legacy"]
+}
 ```
 
 ### Using this Crate
