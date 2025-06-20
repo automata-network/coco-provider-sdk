@@ -61,6 +61,13 @@ pub fn get_hypervisor() -> Hypervisor {
     Hypervisor::Unknown
 }
 
+#[cfg(target_arch = "aarch64")]
+pub fn get_hypervisor() -> Hypervisor {
+    // TODO: Arm doesn't use CPUID like x86_64.
+    Hypervisor::Unknown
+}
+
+#[cfg(target_arch = "x86_64")]
 fn hyperv_extended_checks() -> bool {
     let mut cpuid = unsafe { __cpuid(CPUID_GET_HIGHEST_FUNCTION) };
     if cpuid.eax < CPUID_HYPERVISOR_LEAF {
@@ -83,6 +90,7 @@ fn hyperv_extended_checks() -> bool {
     true
 }
 
+#[cfg(target_arch = "x86_64")]
 /// Double check if HyperV supports SEV_SNP or TDX.
 pub fn hyperv_extra_isolation_checks(isolation_type: &HypervIsolationType) -> Result<()> {
     let cpuid = unsafe { __cpuid(CPUID_HYPERV_ISOLATION_CONFIG) };
@@ -95,9 +103,4 @@ pub fn hyperv_extra_isolation_checks(isolation_type: &HypervIsolationType) -> Re
         )));
     }
     Ok(())
-}
-
-#[cfg(target_arch = "aarch64")]
-pub fn get_hypervisor() {
-    // TODO: arm does not support CPUID like x86_64 does.
 }

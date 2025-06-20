@@ -6,7 +6,9 @@ pub mod utils;
 
 use users::get_current_uid;
 
-use coco::{get_device_type, legacy::Legacy, CocoDeviceType, Device};
+#[cfg(feature = "legacy")]
+use coco::legacy::Legacy;
+use coco::{get_device_type, CocoDeviceType, Device};
 use cpu::{CpuArchitecture, CpuVendor};
 use error::Result;
 use hypervisor::Hypervisor;
@@ -31,6 +33,7 @@ pub struct CocoProvider {
     pub device_type: CocoDeviceType,
     /// Handle to the device
     pub device: Box<dyn Device>,
+    #[cfg(feature = "legacy")]
     /// AMD SEV-SNP Only, when device != TPM: Handle to the legacy device.
     /// This is hacked in as only the legacy device supports derived key generation.
     pub legacy_device: Option<Legacy>,
@@ -63,6 +66,7 @@ pub fn get_coco_provider() -> Result<CocoProvider> {
         _ => false,
     };
     // Perform additional checks before creating device.
+    #[cfg(target_arch = "x86_64")]
     match cpu_vendor {
         CpuVendor::Intel => {
             if hypervisor == Hypervisor::HyperV {
@@ -103,6 +107,7 @@ fn construct_coco_provider(
                 cpu_model,
                 device_type,
                 device: Box::new(coco::mock::Mock::new()),
+                #[cfg(feature = "legacy")]
                 legacy_device: None,
             });
         }
@@ -162,6 +167,7 @@ fn construct_coco_provider(
                     cpu_model,
                     device_type,
                     device: Box::new(device),
+                    #[cfg(feature = "legacy")]
                     legacy_device: None,
                 });
             }
@@ -183,6 +189,7 @@ fn construct_coco_provider(
                     cpu_model,
                     device_type,
                     device: Box::new(device),
+                    #[cfg(feature = "legacy")]
                     legacy_device: None,
                 });
             }
@@ -205,8 +212,8 @@ fn construct_coco_provider(
 
 #[cfg(feature = "clib")]
 pub mod c {
-    use crate::CocoDeviceType;
     use super::{get_coco_provider, CocoProvider};
+    use crate::CocoDeviceType;
     use once_cell::sync::Lazy;
     use std::marker::{Send, Sync};
     use std::sync::Mutex;

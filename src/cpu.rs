@@ -1,3 +1,4 @@
+#[cfg(target_arch = "x86_64")]
 use crate::error::{CocoError, Result};
 use sysinfo::System;
 
@@ -61,6 +62,7 @@ pub fn get_vendor() -> CpuVendor {
     return CpuVendor::Arm;
 }
 
+#[cfg(target_arch = "x86_64")]
 /// When running on Intel Processor, check whether Intel TDX is enabled on the guest.
 pub fn check_tdx_enabled() -> Result<()> {
     let cpuid = unsafe { __cpuid(0) };

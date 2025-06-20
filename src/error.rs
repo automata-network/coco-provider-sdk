@@ -1,4 +1,3 @@
-use sev::error::UserApiError;
 use std::{array::TryFromSliceError, fmt::Display, num::ParseIntError, string::FromUtf8Error};
 
 pub type Result<T> = std::result::Result<T, CocoError>;
@@ -26,6 +25,7 @@ impl From<std::io::Error> for CocoError {
     }
 }
 
+#[cfg(feature = "tpm")]
 impl From<tss_esapi::Error> for CocoError {
     fn from(err: tss_esapi::Error) -> Self {
         CocoError::Tpm(format!("{err}"))
@@ -56,8 +56,9 @@ impl From<Box<bincode::ErrorKind>> for CocoError {
     }
 }
 
-impl From<UserApiError> for CocoError {
-    fn from(err: UserApiError) -> Self {
+#[cfg(any(feature = "configfs", feature = "legacy"))]
+impl From<sev::error::UserApiError> for CocoError {
+    fn from(err: sev::error::UserApiError) -> Self {
         CocoError::Firmware(format!("{err}"))
     }
 }

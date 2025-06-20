@@ -1,7 +1,9 @@
 #[cfg(feature = "configfs")]
 pub mod configfs;
+#[cfg(feature = "legacy")]
 pub mod legacy;
 pub mod mock;
+#[cfg(feature = "tpm")]
 pub mod tpm;
 
 use crate::cpu::CpuVendor;
