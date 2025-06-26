@@ -9,9 +9,9 @@ crate-type = ["rlib", "cdylib"]
 
 [features]
 default = ["configfs", "legacy", "tpm"]
-tpm = ["dep:tss-esapi"]
-configfs = ["dep:sev"]
-legacy = ["dep:sev", "dep:openssl"]
+tpm = ["dep:tss-esapi", "dep:bincode"]
+configfs = []
+legacy = []
 clib = ["configfs", "legacy", "tpm", "dep:once_cell"]
 
 [build-dependencies]
@@ -23,13 +23,13 @@ lto = true
 [dependencies]
 rand = "0.8.5"
 log = "0.4.25"
-serde = "1.0.217"
+serde = { version = "1.0.217", features = ["derive"] }
 serde-big-array = "0.5.1"
-bincode = "1.3.3"
+bincode = { version = "1.3.3", optional = true }
 sysinfo = "0.33.1"
-sev = { version = "5.0.0", default-features = false, features = ['openssl','snp'], optional = true}
-openssl = { version = "^0.10", features = ["vendored"], optional = true}
-users = "0.11.0"
-tss-esapi = {version = "7.6", optional = true}
-
+tss-esapi = { version = "7.6", optional = true }
+uuid = { version = "1.17.0", features = ["serde"] }
+iocuddle = "0.1.1"
+bitfield = "0.19.1"
+libc = "0.2.174"
 once_cell = { version = "1.20.2", optional=true }

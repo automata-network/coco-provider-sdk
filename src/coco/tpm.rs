@@ -6,7 +6,6 @@ use std::mem::size_of;
 
 use serde::{Deserialize, Serialize};
 use serde_big_array::BigArray;
-use sev::firmware::guest::AttestationReport as SnpReport;
 use std::any::Any;
 use tss_esapi::{
     abstraction::nv,
@@ -41,7 +40,7 @@ const fn max(a: usize, b: usize) -> usize {
     b
 }
 const TD_REPORT_SIZE: usize = size_of::<TdReport>();
-const SNP_REPORT_SIZE: usize = size_of::<SnpReport>();
+const SNP_REPORT_SIZE: usize = 1184; // See AMD SEV-SNP specification
 const MAX_REPORT_SIZE: usize = max(TD_REPORT_SIZE, SNP_REPORT_SIZE);
 const VARIABLE_DATA_OFFSET: usize = size_of::<HclReport>();
 
