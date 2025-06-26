@@ -21,7 +21,7 @@ cbindgen = "0.28.0"
 lto = true
 
 [dependencies]
-rand = "0.8.5"
+rand = "0.9.1"
 log = "0.4.25"
 serde = "1.0.217"
 serde-big-array = "0.5.1"
