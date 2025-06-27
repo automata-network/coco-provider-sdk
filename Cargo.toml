@@ -15,7 +15,7 @@ legacy = []
 clib = ["configfs", "legacy", "tpm", "dep:once_cell"]
 
 [build-dependencies]
-cbindgen = "0.28.0"
+cbindgen = "0.29.0"
 
 [profile.release]
 lto = true
