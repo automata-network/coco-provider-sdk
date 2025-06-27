@@ -1,3 +1,11 @@
+<div align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/automata-network/automata-brand-kit/main/PNG/ATA_White%20Text%20with%20Color%20Logo.png">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/automata-network/automata-brand-kit/main/PNG/ATA_Black%20Text%20with%20Color%20Logo.png">
+    <img src="https://raw.githubusercontent.com/automata-network/automata-brand-kit/main/PNG/ATA_White%20Text%20with%20Color%20Logo.png" width="50%">
+  </picture>
+</div>
+
 # Automata coco-provider SDK
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
@@ -54,6 +62,6 @@ fn main() {
 
 ## License
 
-This project includes portions of code derived from [virtee/sev](https://github.com/virtee/sev/), licensed under Apache License 2.0. Some portions have been modified for compatibility and extended functionality.
+The code in [src/coco/snp](./src/coco/snp) is derived from [virtee/sev](https://github.com/virtee/sev/), which is licensed under Apache License 2.0. Some portions have been modified for compatibility and extended functionality.
 
 See [LICENSE](./LICENSE) for full details.
