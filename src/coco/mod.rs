@@ -3,19 +3,26 @@ pub mod configfs;
 #[cfg(feature = "legacy")]
 pub mod legacy;
 pub mod mock;
+pub mod snp;
 #[cfg(feature = "tpm")]
 pub mod tpm;
 
 use crate::cpu::CpuVendor;
 use crate::error::{CocoError, Result};
+#[cfg(feature = "configfs")]
 use crate::utils::generate_random_number;
 use std::any::Any;
 use std::fmt::Debug;
+#[cfg(feature = "configfs")]
 use std::fs::{create_dir_all, remove_dir};
+#[cfg(any(feature = "configfs", feature = "legacy", feature = "tpm"))]
 use std::path::Path;
 
+#[cfg(feature = "configfs")]
 const CONFIGFS_BASE_PATH: &str = "/sys/kernel/config/tsm/report";
+#[cfg(feature = "legacy")]
 const SEV_LEGACY_PATH: &str = "/dev/sev-guest";
+#[cfg(feature = "tpm")]
 const TPM_PATHS: [&str; 2] = ["/dev/tpm0", "/dev/tpmrm0"];
 
 pub trait Device: Debug {
@@ -75,26 +82,30 @@ pub fn get_device_type(vendor: &CpuVendor) -> Result<CocoDeviceType> {
             "Arm CoCo is not supported yet. Maybe next time.".to_string(),
         ));
     }
-    // Prefer configfs if it exists, as it's the unified standard
-    // that all providers are moving to.
+    // Prefer configfs over legacy if it exists, and configfs feature is enabled.
+    #[cfg(feature = "configfs")]
     if Path::new(CONFIGFS_BASE_PATH).exists() {
         if try_create_configfs_report_folder() {
             return Ok(CocoDeviceType::ConfigFs);
         }
     }
-    // Check for legacy device only if it's AMD.
+    // Check for legacy device only if it's AMD, and legacy feature is enabled.
+    #[cfg(feature = "legacy")]
     if vendor == &CpuVendor::Amd && Path::new(SEV_LEGACY_PATH).exists() {
         return Ok(CocoDeviceType::Legacy);
     }
-    // Else check if TPM is available.
+    // Else check if TPM is available, and if the tpm feature is enabled.
+    #[cfg(feature = "tpm")]
     for path in TPM_PATHS.iter() {
         if Path::new(path).exists() {
             return Ok(CocoDeviceType::Tpm);
         }
     }
+    // If not, return a Mock device type.
     Ok(CocoDeviceType::Mock)
 }
 
+#[cfg(feature = "configfs")]
 /// Initial test to see if we can create a folder in configfs
 /// If we are unable to, it means the device does not exist,
 /// or we do not have the right permissions.

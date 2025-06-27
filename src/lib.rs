@@ -4,13 +4,17 @@ pub mod error;
 pub mod hypervisor;
 pub mod utils;
 
-use users::get_current_uid;
+use utils::get_current_uid;
 
 #[cfg(feature = "legacy")]
 use coco::legacy::Legacy;
 use coco::{get_device_type, CocoDeviceType, Device};
 use cpu::{CpuArchitecture, CpuVendor};
-use error::Result;
+use error::{CocoError, Result};
+#[cfg(target_arch = "x86_64")]
+use hypervisor::amd64::{get_hypervisor, hyperv_extra_isolation_checks, HypervIsolationType};
+#[cfg(target_arch = "aarch64")]
+use hypervisor::arm64::get_hypervisor;
 use hypervisor::Hypervisor;
 
 #[cfg(test)]
@@ -52,14 +56,15 @@ pub struct CocoProvider {
 ///   - Not running as root.
 pub fn get_coco_provider() -> Result<CocoProvider> {
     if get_current_uid() != 0 {
-        return Err(error::CocoError::Permission(
+        return Err(CocoError::Permission(
             "Please run this program as root to access CoCo device!".to_string(),
         ));
     }
     let arch = cpu::get_architecture();
     let cpu_vendor = cpu::get_vendor();
     let cpu_model = cpu::get_model();
-    let hypervisor = hypervisor::get_hypervisor();
+    let hypervisor = get_hypervisor();
+    #[allow(unused_mut)]
     let mut should_use_mock = match hypervisor {
         Hypervisor::None => true,
         Hypervisor::Unknown => true,
@@ -70,7 +75,7 @@ pub fn get_coco_provider() -> Result<CocoProvider> {
     match cpu_vendor {
         CpuVendor::Intel => {
             if hypervisor == Hypervisor::HyperV {
-                hypervisor::hyperv_extra_isolation_checks(&hypervisor::HypervIsolationType::Tdx)?;
+                hyperv_extra_isolation_checks(&HypervIsolationType::Tdx)?;
             } else if hypervisor == Hypervisor::Kvm {
                 if cpu::check_tdx_enabled().is_err() {
                     should_use_mock = true;
@@ -79,7 +84,7 @@ pub fn get_coco_provider() -> Result<CocoProvider> {
         }
         CpuVendor::Amd => {
             if hypervisor == Hypervisor::HyperV {
-                hypervisor::hyperv_extra_isolation_checks(&hypervisor::HypervIsolationType::Snp)?;
+                hyperv_extra_isolation_checks(&HypervIsolationType::Snp)?;
             }
         }
         _ => {}
@@ -131,7 +136,7 @@ fn construct_coco_provider(
             }
             #[cfg(not(feature = "legacy"))]
             {
-                return Err(error::CocoError::Firmware(
+                return Err(CocoError::Firmware(
                     "Legacy feature not enabled!!!".to_string(),
                 ));
             }
@@ -173,7 +178,7 @@ fn construct_coco_provider(
             }
             #[cfg(not(feature = "configfs"))]
             {
-                return Err(error::CocoError::Firmware(
+                return Err(CocoError::Firmware(
                     "ConfigFS feature not enabled!!!".to_string(),
                 ));
             }
@@ -195,7 +200,7 @@ fn construct_coco_provider(
             }
             #[cfg(not(feature = "tpm"))]
             {
-                return Err(error::CocoError::Firmware(
+                return Err(CocoError::Firmware(
                     "TPM feature not enabled!!!".to_string(),
                 ));
             }
@@ -203,9 +208,7 @@ fn construct_coco_provider(
         // Leaving this here for now in case we want to expand to support new stuff.
         #[allow(unreachable_patterns)]
         _ => {
-            return Err(error::CocoError::Firmware(
-                "Device type not supported".to_string(),
-            ));
+            return Err(CocoError::Firmware("Device type not supported".to_string()));
         }
     }
 }

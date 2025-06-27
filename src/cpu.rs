@@ -5,6 +5,9 @@ use sysinfo::System;
 #[cfg(target_arch = "x86_64")]
 use std::arch::x86_64::__cpuid;
 
+#[cfg(target_arch = "x86_64")]
+const TDX_CPUID_LEAF_ID: u64 = 0x21;
+
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum CpuArchitecture {
     X64,
@@ -18,8 +21,6 @@ pub enum CpuVendor {
     Arm = 2,
     Unknown = 999,
 }
-
-const TDX_CPUID_LEAF_ID: u64 = 0x21;
 
 /// Retrieve CPU Brand
 pub fn get_model() -> String {

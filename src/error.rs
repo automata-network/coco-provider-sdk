@@ -1,3 +1,5 @@
+#[cfg(feature = "legacy")]
+use crate::coco::snp::snp_error::{FirmwareError, VmmError};
 use std::{array::TryFromSliceError, fmt::Display, num::ParseIntError, string::FromUtf8Error};
 
 pub type Result<T> = std::result::Result<T, CocoError>;
@@ -56,15 +58,29 @@ impl From<ParseIntError> for CocoError {
     }
 }
 
+#[cfg(feature = "tpm")]
 impl From<Box<bincode::ErrorKind>> for CocoError {
     fn from(err: Box<bincode::ErrorKind>) -> Self {
         CocoError::IO(format!("{err:?}"))
     }
 }
 
-#[cfg(any(feature = "configfs", feature = "legacy"))]
-impl From<sev::error::UserApiError> for CocoError {
-    fn from(err: sev::error::UserApiError) -> Self {
+impl From<uuid::Error> for CocoError {
+    fn from(err: uuid::Error) -> Self {
+        CocoError::IO(format!("{err:?}"))
+    }
+}
+
+#[cfg(feature = "legacy")]
+impl From<FirmwareError> for CocoError {
+    fn from(err: crate::coco::snp::snp_error::FirmwareError) -> Self {
+        CocoError::Firmware(format!("{err}"))
+    }
+}
+
+#[cfg(feature = "legacy")]
+impl From<VmmError> for CocoError {
+    fn from(err: crate::coco::snp::snp_error::VmmError) -> Self {
         CocoError::Firmware(format!("{err}"))
     }
 }

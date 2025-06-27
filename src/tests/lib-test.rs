@@ -1,5 +1,5 @@
 use crate::get_coco_provider;
-use users::get_current_uid;
+use crate::utils::get_current_uid;
 
 /// This test should always fail if test is not running as root, as device requires root privileges.
 /// If test is running as root, it should pass if the machine this test is run on has a CoCo device.

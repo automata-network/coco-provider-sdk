@@ -1,7 +1,9 @@
+use crate::coco::snp::{
+    legacy_device::Firmware,
+    types::{CertTableEntry, DerivedKey, GuestFieldSelect},
+};
 use crate::coco::{Device, ReportRequest, ReportResponse};
 use crate::error::{CocoError, Result};
-use sev::firmware::guest::{DerivedKey, Firmware, GuestFieldSelect};
-use sev::firmware::host::CertTableEntry;
 
 use std::any::Any;
 
@@ -18,7 +20,7 @@ impl Device for Legacy {
         // Try to open /dev/sev-guest
         let mut fw = Firmware::open()?;
         let report = fw.get_report(None, req.report_data, req.vmpl)?;
-        let report = bincode::serialize(&report)?;
+        let report = report.to_vec();
         Ok(ReportResponse {
             report,
             var_data: None,
