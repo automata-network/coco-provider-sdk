@@ -184,7 +184,7 @@ fn construct_coco_provider(
             }
         }
         CocoDeviceType::Tpm => {
-            #[cfg(feature = "tpm")]
+            #[cfg(all(feature = "tpm", target_os = "linux"))]
             {
                 let device = coco::tpm::Tpm::new(cpu_vendor, hypervisor)?;
                 return Ok(CocoProvider {
@@ -198,10 +198,10 @@ fn construct_coco_provider(
                     legacy_device: None,
                 });
             }
-            #[cfg(not(feature = "tpm"))]
+            #[allow(unreachable_code)]
             {
                 return Err(CocoError::Firmware(
-                    "TPM feature not enabled!!!".to_string(),
+                    "TPM feature not enabled or platform is not Linux!!!".to_string(),
                 ));
             }
         }

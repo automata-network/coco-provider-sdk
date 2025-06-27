@@ -4,7 +4,7 @@ pub mod configfs;
 pub mod legacy;
 pub mod mock;
 pub mod snp;
-#[cfg(feature = "tpm")]
+#[cfg(all(feature = "tpm", target_os = "linux"))]
 pub mod tpm;
 
 use crate::cpu::CpuVendor;
@@ -15,14 +15,18 @@ use std::any::Any;
 use std::fmt::Debug;
 #[cfg(feature = "configfs")]
 use std::fs::{create_dir_all, remove_dir};
-#[cfg(any(feature = "configfs", feature = "legacy", feature = "tpm"))]
+#[cfg(any(
+    feature = "configfs",
+    feature = "legacy",
+    all(feature = "tpm", target_os = "linux")
+))]
 use std::path::Path;
 
 #[cfg(feature = "configfs")]
 const CONFIGFS_BASE_PATH: &str = "/sys/kernel/config/tsm/report";
 #[cfg(feature = "legacy")]
 const SEV_LEGACY_PATH: &str = "/dev/sev-guest";
-#[cfg(feature = "tpm")]
+#[cfg(all(feature = "tpm", target_os = "linux"))]
 const TPM_PATHS: [&str; 2] = ["/dev/tpm0", "/dev/tpmrm0"];
 
 pub trait Device: Debug {
@@ -95,7 +99,8 @@ pub fn get_device_type(vendor: &CpuVendor) -> Result<CocoDeviceType> {
         return Ok(CocoDeviceType::Legacy);
     }
     // Else check if TPM is available, and if the tpm feature is enabled.
-    #[cfg(feature = "tpm")]
+    // must also be a linux platform.
+    #[cfg(all(feature = "tpm", target_os = "linux"))]
     for path in TPM_PATHS.iter() {
         if Path::new(path).exists() {
             return Ok(CocoDeviceType::Tpm);
