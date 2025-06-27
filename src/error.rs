@@ -33,7 +33,7 @@ impl From<std::io::Error> for CocoError {
     }
 }
 
-#[cfg(feature = "tpm")]
+#[cfg(all(feature = "tpm", target_os = "linux"))]
 impl From<tss_esapi::Error> for CocoError {
     fn from(err: tss_esapi::Error) -> Self {
         CocoError::Tpm(format!("{err}"))
