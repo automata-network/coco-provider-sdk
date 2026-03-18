@@ -41,12 +41,12 @@ pub mod amd64 {
 
     pub fn get_hypervisor() -> Hypervisor {
         // First check if running under a hypervisor
-        let cpuid = unsafe { __cpuid(CPUID_PROCESSOR_INFO_AND_FEATURE_BITS) };
+        let cpuid = __cpuid(CPUID_PROCESSOR_INFO_AND_FEATURE_BITS);
         if (cpuid.ecx & CPUID_FEATURE_HYPERVISOR) == 0 {
             return Hypervisor::None;
         }
 
-        let cpuid = unsafe { __cpuid(CPUID_HYPERVISOR_LEAF) };
+        let cpuid = __cpuid(CPUID_HYPERVISOR_LEAF);
         let mut sig: Vec<u8> = vec![];
         sig.append(&mut cpuid.ebx.to_le_bytes().to_vec());
         sig.append(&mut cpuid.ecx.to_le_bytes().to_vec());
@@ -62,17 +62,17 @@ pub mod amd64 {
     }
 
     fn hyperv_extended_checks() -> bool {
-        let mut cpuid = unsafe { __cpuid(CPUID_GET_HIGHEST_FUNCTION) };
+        let mut cpuid = __cpuid(CPUID_GET_HIGHEST_FUNCTION);
         if cpuid.eax < CPUID_HYPERVISOR_LEAF {
             return false;
         }
 
-        cpuid = unsafe { __cpuid(CPUID_HYPERVISOR_LEAF) };
+        cpuid = __cpuid(CPUID_HYPERVISOR_LEAF);
         if cpuid.eax < CPUID_HYPERV_MIN || cpuid.eax > CPUID_HYPERV_MAX {
             return false;
         }
 
-        cpuid = unsafe { __cpuid(CPUID_HYPERV_FEATURES) };
+        cpuid = __cpuid(CPUID_HYPERV_FEATURES);
 
         let isolated: bool = (cpuid.ebx & CPUID_HYPERV_ISOLATION) != 0;
         let managed: bool = (cpuid.ebx & CPUID_HYPERV_CPU_MANAGEMENT) != 0;
@@ -85,7 +85,7 @@ pub mod amd64 {
 
     /// Double check if HyperV supports SEV_SNP or TDX.
     pub fn hyperv_extra_isolation_checks(isolation_type: &HypervIsolationType) -> Result<()> {
-        let cpuid = unsafe { __cpuid(CPUID_HYPERV_ISOLATION_CONFIG) };
+        let cpuid = __cpuid(CPUID_HYPERV_ISOLATION_CONFIG);
         let mask = cpuid.ebx & CPUID_HYPERV_ISOLATION_TYPE_MASK;
 
         if mask != *isolation_type as u32 {

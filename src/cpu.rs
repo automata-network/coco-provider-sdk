@@ -41,7 +41,7 @@ pub fn get_architecture() -> CpuArchitecture {
 #[cfg(target_arch = "x86_64")]
 /// Retrieve CPU Manufacturer
 pub fn get_vendor() -> CpuVendor {
-    let cpuid = unsafe { __cpuid(0x0) };
+    let cpuid = __cpuid(0x0);
 
     if &cpuid.ebx.to_ne_bytes() == b"Genu"
         && &cpuid.edx.to_ne_bytes() == b"ineI"
@@ -66,7 +66,7 @@ pub fn get_vendor() -> CpuVendor {
 #[cfg(target_arch = "x86_64")]
 /// When running on Intel Processor, check whether Intel TDX is enabled on the guest.
 pub fn check_tdx_enabled() -> Result<()> {
-    let cpuid = unsafe { __cpuid(0) };
+    let cpuid = __cpuid(0);
     // Check if legacy guest.
     let cpuid_leaf = cpuid.eax as u64;
     if cpuid_leaf < TDX_CPUID_LEAF_ID {
@@ -76,7 +76,7 @@ pub fn check_tdx_enabled() -> Result<()> {
     }
 
     // Check presence of Intel TDX
-    let cpuid = unsafe { __cpuid(TDX_CPUID_LEAF_ID as u32) };
+    let cpuid = __cpuid(TDX_CPUID_LEAF_ID as u32);
     if &cpuid.ebx.to_ne_bytes() != b"Inte"
         || &cpuid.edx.to_ne_bytes() != b"lTDX"
         || &cpuid.ecx.to_ne_bytes() != b"    "

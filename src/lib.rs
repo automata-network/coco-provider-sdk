@@ -227,7 +227,7 @@ pub mod c {
     static COCO_PROVIDER: Lazy<Mutex<CocoProvider>> =
         Lazy::new(|| Mutex::new(get_coco_provider().unwrap()));
 
-    #[no_mangle]
+    #[unsafe(no_mangle)]
     pub extern "C" fn get_vendor() -> u32 {
         match COCO_PROVIDER.lock() {
             Ok(provider) => provider.cpu_vendor as u32,
@@ -235,7 +235,7 @@ pub mod c {
         }
     }
 
-    #[no_mangle]
+    #[unsafe(no_mangle)]
     pub extern "C" fn get_coco_device_type() -> u32 {
         match COCO_PROVIDER.lock() {
             Ok(provider) => {
